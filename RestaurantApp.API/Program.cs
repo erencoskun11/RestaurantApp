@@ -1,17 +1,61 @@
+using Microsoft.EntityFrameworkCore;
+using RestaurantApp.Application.Interfaces.Repositories;
+using RestaurantApp.Application.Interfaces.Services;
+using RestaurantApp.Application.Mappings;
+using RestaurantApp.Application.Services;
+using RestaurantApp.Infrastructure.Persistence;
+using RestaurantApp.Infrastructure.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ---------------------------------------------------------
+// 1. Veritabaný Baðlantýsý (PostgreSQL)
+// ---------------------------------------------------------
+builder.Services.AddDbContext<RestaurantContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// ---------------------------------------------------------
+// 2. Repository Tanýmlamalarý (DI Container)
+// ---------------------------------------------------------
+// Generic Repository
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+// Product Repository
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
+// ---------------------------------------------------------
+// 3. Service Tanýmlamalarý
+// ---------------------------------------------------------
+builder.Services.AddScoped<IProductService, ProductService>();
+
+// ---------------------------------------------------------
+// 4. AutoMapper Tanýmlamasý
+// ---------------------------------------------------------
+builder.Services.AddAutoMapper(typeof(GeneralMapping));
+
+// Repository
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+
+// Service
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+// ---------------------------------------------------------
+// 5. Controller ve Swagger Ayarlarý
+// ---------------------------------------------------------
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+
+// .NET 9 ile gelen OpenAPI yerine klasik Swagger UI görmek için bunlarý ekliyoruz:
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ---------------------------------------------------------
+// HTTP Request Pipeline
+// ---------------------------------------------------------
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    // Swagger arayüzünü aktif ediyoruz
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();

@@ -1,0 +1,15 @@
+﻿namespace RestaurantApp.Application.DTOs.Products
+{
+    public class ResultProductDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public decimal Price { get; set; }
+        public string ImageUrl { get; set; }
+        public string CategoryName { get; set; } // İlişkisel veri
+        public bool IsDailySpecial { get; set; }
+        public bool IsChefSuggestion { get; set; }
+        public bool ProductStatus { get; set; }
+    }
+}
